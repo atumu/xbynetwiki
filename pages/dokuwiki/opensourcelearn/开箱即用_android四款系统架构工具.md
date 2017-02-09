@@ -1,0 +1,24 @@
+title: 开箱即用_android四款系统架构工具 
+
+#  开箱即用_android四款系统架构工具 
+
+一款功能强大且实用的开发工具可以为开发者简化开发流程，提高工作效率，允许开发者在应用开发本身投入更多的时间和精力，从而提高作品质量。本文就为大家分享4款实用的Android应用架构工具。
+　　开发者若想开发出一款高质量的应用，一款功能强大的开发工具想必是不可或缺的。开发工具简化了应用的开发流程，也能使开发者在应用开发本身投入更多的精力。本文就为大家带来4款实用的Android应用架构工具。
+　　1. Spring for Android
+　　Spring for Android是Spring框架在Android平台上的扩展，旨在简化Android原生应用的开发流程，提高开发者的工作效率。Spring for Android可以帮助开发者简化应用与服务器端交互和Auth授权验证。
+图片说明文字
+　　很多Android应用都要与服务器进行交互，而现在很多应用服务器都会提供REST服务，数据格式一般是JSON、XML、RSS等，使用Spring for Android将会大大地方便Android应用与服务器端的交互。Spring for Android能够简化JSON的解析工作。截至目前，Spring for Android支持3个JSON第三方库(Jackson JSON Processor、Jackson 2.x和Google Gson)。另外，Spring for Android中的Simple XML Serializer 也可以帮助开发者解析XML文件。
+　　现在很多应用都提供开放的API服务，Android应用往往要经过授权才能接入这些服务，而如今大多应用都采用Auth授权认证，使用Spring for Android可以帮助开发者快速地进行授权处理。
+　　2. GreenDroid
+　　GreenDroid是一款高效的Android开发类库，可以为开发者提供一个更为轻便的Android开发环境。
+　　Android的开放性使得各种应用的UI设计基本上丧失了一致性。不管是官方应用还是第三方应用，都选择使用自己的UI交互，开发各种非标准的按钮和控件。GreenDroid可以使开发者的应用与Android生态系统保持一致，并试图为开发者打造界面结构与风格一致的开发环境。
+　　GreenDroid能够很好地利用Android框架所提供的功能，帮助开发者提高应用质量，还能允许开发者随时对应用功能进行优化。
+　　XML作为承载数据的一个重要角色，如何利用XML成为Android开发中一项重要的技能。GreenDroid可以把XML文件解析到库中，帮助开发者充分利用XML。
+　　3. Ignition
+开发者通过使用Ignition所提供的即用组件和样板文件的实用类，可以让所开发的Android应用快速起步。
+　　Ignition涵盖的区域包括：Widget、Adapter、Dialog等UI组件;允许编写简单却强大的网络代码的HTTP Wrapper库;加载远程Web图像并进行缓存的类;简单但有效的缓存框架(将对所有对象树做出响应的HTTP缓存到内存或硬盘中);Intents、diagnostics等几个能让API级别更容易向后兼容的帮助类;更友好、更强大的AsyncTask实现。
+图片说明文字
+　　Ignition包括三个子项目：Ignition-core——是一个可以直接编译到App中的Android库项目。Ignition-support——一个标准的Java库项目，被部署为一个普通的JAR，包含了大部分实用工具类。开发者可以独立使用该工程的核心模块。Ignition-location——一个可以直接编译到应用程序中的Android AspectJ库项目。能够让定位应用在不需要Activity位置更新处理的情况下获取到最新的位置信息。
+　　4. DroidParts
+　　DroidParts是Android开发中一组常用的开发组件，DroidParts可以给开发者带来许多都意想不到的便利。DroidParts主要囊括以下几个方面：DI——DroidParts在注入Views、Services方面做到了真正的“开箱即用”效果，并且自定义依赖关系可以定义在DependencyProvider类中。ORM——通过利用Cursors和Fluent API，DroidParts可以帮助开发者实现高效模型持久化。JSON——DroidParts中含有简单的JSON生成和解析器，实现了对嵌套对象的高效处理。ImageFetcher——可以将图片异步加载ImageViews中，同时支持淡入和淡出效果。RESTClient——可以向服务器发送各种HTTP请求(用户也可以自定义请求方式和提交JSON对象)，并显示服务器响应。
+　　此外，DriodParts改进了AsyncTask和IntentService，支持应用的异常处理和结果报告。

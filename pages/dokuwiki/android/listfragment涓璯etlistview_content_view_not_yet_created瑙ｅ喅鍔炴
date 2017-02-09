@@ -1,0 +1,26 @@
+title: listfragment中getlistview_content_view_not_yet_created解决办法 
+
+#  listFragment中getListView()Content view not yet created解决办法 
+首先编写一个类 继承ListFragment  在onCreateView生命周期中调用  this.getListView() 会报错 java.lang.IllegalStateException: Content view not yet created
+为什么呢？
+首先看一下onCreateView生命周期的解释
+onCreateView()当activity要得到fragment的layout时，调用此方法，fragment在其中创建自己的layout(界面)。**这里仅仅是得到fragment的布局文件** 
+如果我们想在这里获取ListView的话
+我们可以使用 mListView=(ListView) view.findViewById(**android.R.id.list**); 这种方式获取ListView
+第二种解决方法
+重写onViewCreated  当fragment的onCreateView()方法返回后调用此方法。
+我们在此方法中 this.getListView()即可
+
+而我的需求是在具体数据加载之前让listView显示进度条。
+我最后的解决办法是:
+重写onActivityCreated(Bundle)
+```
+
+ @Override
+    public void onActivityCreated(Bundle bundle){
+        super.onActivityCreated(bundle);
+        getListView().setEmptyView(progressBar);//具体数据加载之前显示进度条
+        ((CircularProgressDrawable)progressBar.getIndeterminateDrawable()).start();
+    }
+
+```

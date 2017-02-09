@@ -1,0 +1,120 @@
+title: chapter6请求与响应的装饰_异步请求处理 
+
+#  chapter6请求与响应的装饰_异步请求处理 
+##  请求与响应的装饰 
+**HttpServletRequestWrapper和HttpServletResponseWrapper**
+###   HttpServletRequestWrapper 
+` 因为java.util.Map所包装的HttpServletRequest对象的参数是不可改变的 `。这极大地缩减了filter的应用范围。如果在HttpServletRequest对象到达Struts的action  servlet之前，我们可以通过一个filter将用户输入的多余空格去掉，难道不是更美妙吗？这样的话，你就不必等到在Struts的action表单验证方法中才进行这项工作了。
+幸运的是，可以使用**javax.servlet.http.HttpServletRequestWrapper**类来装饰HttpServletRequest对象。覆写**getParameterMap()、getParameterValues()、getParameter()**等方法来实现对请求参数的处理。
+这在许多servlet/JSP应用中是很有用的，包括Struts及JavaServer  Faces等应用。例如，Struts通过调用HttpServletRequest对象的getParameterValues()对象来处理action表单。通过覆盖装饰类中此方法，你可以改变当前HttpServletRequest对象的状态。 
+要创建HttpServletRequest的装饰类，**你需要继承HttpServletRequestWrapper并且覆盖你希望改变的方法**。 
+```
+
+    class AutoCorrectHttpServletRequestWrapper extends
+            HttpServletRequestWrapper {
+        private HttpServletRequest httpServletRequest;
+
+        public AutoCorrectHttpServletRequestWrapper(
+                HttpServletRequest httpServletRequest) {
+            super(httpServletRequest);
+            this.httpServletRequest = httpServletRequest;
+        }
+
+        @Override
+        public String getParameter(String name) {
+            return autoCorrect(
+            		httpServletRequest.getParameter(name));
+        }
+
+        @Override
+        public String[] getParameterValues(String name) {
+            return autoCorrect(httpServletRequest
+                    .getParameterValues(name));
+        }
+    }
+
+```
+##  异步请求处理与异步监听 
+Servlet3引入的新特性
+在早前版本的Servlet规范中，如果Servlet作为控制器调用了一个较耗时的业务方法，那么Servlet必须等到业务方法完全返回之后才生成响应，这使得Servlet对业务方法的调用变成一种阻塞式的调用，从而导致运行效率降低。
+异步处理特性可以应用于 Servlet 和过滤器两种组件，**因此默认情况下，Servlet 和过滤器并没有开启异步处理特性**，如果希望使用该特性，则必须按照如下的方式启用：
+  * web.xml配置 Servlet 和过滤器的情况，Servlet 3.0 为 <servlet> 和 <filter> 标签增加了 ` <async-supported> ` 子标签，该标签的默认取值为 false，要启用异步处理支持，则将其设为 true 即可。
+  * @WebServlet 和 @WebFilter 进行 Servlet 或过滤器配置的情况，这两个注解都提供了 **` asyncSupported 属性 `**，默认该属性的取值为 false，要启用异步处理支持，只需将该属性设置为 true 即可。
+Servlet3.0规范引入了异步处理来解决这个问题，**异步处理允许Servlet重新发起一条新线程去调用较耗时的业务方法，这样就可避免等待**。该异步机制是通过**` AsyncContext `**类来处理的，Servlet可通过**ServletRequest**的如下两个方法开启异步调用、创建AsyncContext对象：
+  * 1、AsyncContext ` startAsync() `
+  * 2、AsyncContext ` startAsync(ServletRequest,ServletResponse) `
+**重复调用上面的方法将得到同一个` AyncContext `对象**，AyncContext对象代表异步处理的上下文，它提供了一些工具方法，可以完成` setTimeout，dispatch用于请求，complete,start(Runnable) `启动后台线程、**` addListener(AsyncListener) `**获取request response对象等功能
+
+` **运行机制：** `当调用` startAsync `开启异步请求之后，它返回一个包含了请求对象的` AsyncContext `对象，然后Servlet将从service方法继续执行并返回。不需要对请求作出响应，它所使用请求线程也会被返回到线程池中，**但该请求并没有被关闭**，相反仍然保持打开、未应答的状态。稍后，当某些事件发生时，**容器应该可以从AysncContext中获取到响应对象，并使用它向客户端发送响应数据。**
+
+**前提：设置asyncSupported=true**
+''@WebServlet(urlPatterns="/async",asyncSupported=true)
+@WebFilter(urlPatterns="/*",asyncSupported=true)''
+**异步监听：**
+`  asyncContext.addListener(new AsyncListener()); `
+```
+
+@WebServlet(name = "AsyncListenerServlet", 
+        urlPatterns = { "/asyncListener" }, 
+        asyncSupported = true)
+public class AsyncListenerServlet extends HttpServlet {
+    private static final long serialVersionUID = 62738L;
+
+    @Override
+    public void doGet(final HttpServletRequest request, 
+            HttpServletResponse response) 
+            throws ServletException, IOException {
+        final AsyncContext asyncContext = request.startAsync();
+        asyncContext.setTimeout(5000);
+        
+        asyncContext.addListener(new MyAsyncListener());
+        asyncContext.start(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                }
+                String greeting = "hi from listener";
+                System.out.println("wait....");
+                request.setAttribute("greeting", greeting);
+                asyncContext.dispatch("/test.jsp");
+            }
+        });
+    }    
+}
+
+```
+```
+
+public class MyAsyncListener implements AsyncListener {
+
+    @Override
+    public void onComplete(AsyncEvent asyncEvent) 
+            throws IOException {
+        System.out.println("onComplete");
+    }
+
+    @Override
+    public void onError(AsyncEvent asyncEvent) 
+            throws IOException {
+        System.out.println("onError");
+    }
+
+    @Override
+    public void onStartAsync(AsyncEvent asyncEvent) 
+            throws IOException {
+        System.out.println("onStartAsync");
+    }
+
+    @Override
+    public void onTimeout(AsyncEvent asyncEvent) 
+            throws IOException {
+        System.out.println("onTimeout");
+    }
+}
+
+
+```
+参考:
+http://www.ibm.com/developerworks/cn/java/j-lo-servlet/

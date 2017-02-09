@@ -1,0 +1,3 @@
+title: android_callback理解 
+
+Android中Callbacks回调接口一般是在主线程中进行的。也就是说回调接口内执行的任务都是在主线程中的，所以不要执行耗时任务。

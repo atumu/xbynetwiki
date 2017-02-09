@@ -1,0 +1,24 @@
+title: showasaction问题与不显示菜单解决 
+
+#  ActionBar should use app:showAsAction问题与不显示菜单解决 
+参考：http://stackoverflow.com/questions/24439593/android-action-bar-menu-items-getting-forced-to-overflow
+在使用为menu中item设置android:showAsAction属性时报错Should use app:showAsAction with the appcompat library with xmlns:app="schemas.android.com/apk/res-auto
+即使换成了app:showAsAction但是"always"却不显示菜单。
+解决方法：
+添加 tools:ignore="AppCompatResource"防止报错
+然后将app:showAsAction换成android:showAsAction即可正常。
+```
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity"
+    tools:ignore="AppCompatResource"> 
+          <item
+        android:id="@+id/menu_about"
+        android:icon="@drawable/about"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/aboutme"
+        />
+</menu>
+
+```

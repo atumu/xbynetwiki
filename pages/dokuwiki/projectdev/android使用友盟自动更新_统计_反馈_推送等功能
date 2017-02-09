@@ -1,0 +1,144 @@
+title: android使用友盟自动更新_统计_反馈_推送等功能 
+
+#  android使用友盟自动更新_统计_反馈_推送等功能 
+##  .集成准备 
+获得Appkey
+##  自动更新 
+导入lib以及res
+添加权限
+```
+
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
+```
+ 添加APPKEY和渠道到` <application> `标签下： （如果已经集成了统计SDK等友盟其他服务，不需要重复添加APPKEY）
+```
+
+<application>
+  .....
+	<meta-data android:value="YOUR APP KEY" android:name="UMENG_APPKEY"/>
+	<meta-data android:value="Channel ID" android:name="UMENG_CHANNEL"/>
+</application>
+
+```
+配置Service与Activity:
+```
+
+<service
+    android:name="com.umeng.update.net.DownloadingService"
+    android:process=":DownloadingService" >
+</service>
+<activity 
+    android:name="com.umeng.update.UpdateDialogActivity"
+    android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+</activity>
+
+```
+**调用自动更新接口**
+主要应用场景：最常见的自动更新模式，当用户进入应用首页后，如果处于wifi环境则检测更新，如果有更新，弹出对话框提示有新版本，用户点选更新开始下载更新。
+在应用程序入口Activity里的OnCreate() 方法中调用
+```
+
+UmengUpdateAgent.setUpdateOnlyWifi(false)//设置所有网络均可检查更新，默认只有wifi可以。
+UmengUpdateAgent.update(this);
+
+```
+你还可以：添加应用推广栏可获取推广收益
+上传最新的APK即可：上传APK前，请检查其VersionCode是否大于旧版本的。 新版本与老版本的签名要保持一致，否则安卓系统将会提示安装失败，无法升级。
+**调用手动检查手动更新**
+主要使用场景：许多应用的**设置界面中都会有检查更新等类似功能**，需要用户主动触发而检测更新。它的默认行为基本和自动更新基本一致。
+它和自动更新的主要区别是：在这种手动更新的情况下，无论网络状况是否Wifi，无论用户是否忽略过该版本的更新，都可以像下面的示例一样在按钮的回调中发起更新检查，代替update(Context context)：
+` UmengUpdateAgent.forceUpdate(mContext); `
+
+
+##  数据统计 
+Gradle:
+```
+
+dependencies {
+   compile 'com.umeng.analytics:analytics:latest.integration'
+}
+
+```
+```
+
+添加权限与元数据
+<manifest……>
+<uses-sdk android:minSdkVersion="4"></uses-sdk>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+<uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+
+<application>
+……
+<meta-data android:value="YOUR_APP_KEY" android:name="UMENG_APPKEY"></meta-data>
+<meta-data android:value="Channel ID" android:name="UMENG_CHANNEL"/>
+</application>    
+</manifest>
+
+```
+统计代码：
+```
+
+public void onResume() {
+super.onResume();
+MobclickAgent.onResume(this);
+}
+public void onPause() {
+super.onPause();
+MobclickAgent.onPause(this);
+}
+
+```
+还有很多其他功能。
+##  用户反馈功能 
+先gradle导入support:support-v4:21.+
+dependencies {
+    compile 'com.android.support:support-v4:21.+'
+}
+然后将SDK的libs与res导入到项目中。
+
+添加清单
+```
+
+<manifest>
+    <application>
+        <activity
+        android:name="com.umeng.fb.ConversationActivity"/>
+        <meta-data
+        android:value="YOUR_APP_KEY"
+        android:name="UMENG_APPKEY"/>
+        <meta-data
+        android:value="Channel ID"
+        android:name="UMENG_CHANNEL"/>
+    </application>
+    <uses-sdk android:minSdkVersion="9"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+</manifest>
+
+```
+代码中**启用反馈模块**，调用下面函数进入反馈界面：
+```
+
+FeedbackAgent agent = new FeedbackAgent(context);
+agent.startFeedbackActivity();
+
+```
+
+**设置新回复通知**
+当开发者回复用户反馈后，如果需要提醒用户，
+` 在Application的onCreate() `方法中调用下面的方法初**始化反馈推送**的相关设置，参数为false。example：
+` FeedbackPush.getInstance(this).init(false); `
+然后请在应用程序的入口Activity的OnCreate()方法中下添加以下代码
+` agent.sync(); `
+
+**修改反馈页面默认欢迎语**:` agent.setWelcomeInfo("welcome info"); `
+##  消息推送 
+暂时没用到，略。。
