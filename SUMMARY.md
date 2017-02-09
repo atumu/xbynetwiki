@@ -6,4 +6,4 @@
   * JavaEE
   * Java开源库
 * pages
-  * [Python](python.md)
+  * [Python](pages/python.md)
