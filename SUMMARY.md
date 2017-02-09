@@ -5,5 +5,5 @@
   * [JavaSE](javase.md)
   * JavaEE
   * Java开源库
-* Pages
+* pages
 
